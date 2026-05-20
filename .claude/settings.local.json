@@ -5,5 +5,8 @@
       "mcp__ide__getDiagnostics",
       "Bash(npm run *)"
     ]
+  },
+  "enabledPlugins": {
+    "ecc@ecc": true
   }
 }

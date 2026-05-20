@@ -4,6 +4,8 @@ import { SyncService } from "./sync.service";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import "multer";
 
 @Controller("sync")
 export class SyncController {
