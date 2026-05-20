@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - API_KEY=${API_KEY:-changeme}
+      - ALLOWED_ORIGIN=${ALLOWED_ORIGIN:-http://localhost:3001}
+    volumes:
+      - backend-data:/app/.data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    volumes:
+      # Mount host Claude session data so the frontend can read it directly
+      - ${CLAUDE_DIR:-~/.claude}:/root/.claude:ro
+    restart: unless-stopped
+
+volumes:
+  backend-data:

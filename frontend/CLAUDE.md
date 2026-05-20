@@ -15,10 +15,9 @@ Personal Claude Code usage analytics dashboard. Reads transcript data from
 
 ## Data Source
 
-Read-only access to transcript JSON files at:
-- `C:\Users\bteb\.claude\usage-data\session-meta\` — per-session aggregated stats
-- `C:\Users\bteb\.claude\usage-data\facets\` — per-session detailed facets
-- `C:\Users\bteb\.claude\history.jsonl` — global session history
+Read-only access to Claude Code session logs at:
+- `~/.claude/projects/*.jsonl` — per-project session JSONL files (primary data source)
+- `~/.claude/usage-data/session-meta/*.json` — pre-aggregated per-session stats (alternative source)
 
 ## Key Conventions
 

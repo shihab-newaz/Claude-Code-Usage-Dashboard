@@ -7,7 +7,8 @@ async function fetchClaudeUsage(dateFrom?: string, dateTo?: string): Promise<Cla
   const params = new URLSearchParams();
   if (dateFrom) params.set("dateFrom", dateFrom);
   if (dateTo) params.set("dateTo", dateTo);
-  const url = "/api/claude-usage" + (params.size ? "?" + params.toString() : "");
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const url = baseUrl + "/api/claude-usage" + (params.size ? "?" + params.toString() : "");
   const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch usage data");
   return res.json();
