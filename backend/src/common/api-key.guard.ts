@@ -1,18 +1,18 @@
-import { Injectable, CanActivate, UnauthorizedException } from "@nestjs/common";
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from "@nestjs/common";
+import { Request } from "express";
 import { API_KEY } from "./env";
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
-  private readonly validKey: string;
+  canActivate(context: ExecutionContext): boolean {
+    if (!API_KEY) return true; // guard disabled when no key configured
 
-  constructor() {
-    if (!API_KEY) {
-      throw new Error("API_KEY environment variable is not set");
+    const req = context.switchToHttp().getRequest<Request>();
+    const key = req.headers["x-api-key"];
+
+    if (key !== API_KEY) {
+      throw new UnauthorizedException("Invalid or missing API key");
     }
-    this.validKey = API_KEY;
-  }
-
-  canActivate(): boolean {
     return true;
   }
 }

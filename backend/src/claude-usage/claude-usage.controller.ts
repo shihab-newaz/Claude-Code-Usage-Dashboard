@@ -1,8 +1,10 @@
-import { Controller, Get, NotFoundException, Param, Query } from "@nestjs/common";
+import { Controller, Get, NotFoundException, Param, Query, UseGuards } from "@nestjs/common";
 import { ClaudeUsageService } from "./claude-usage.service";
 import { DateRangeFilterDto } from "./dto/date-range-filter.dto";
+import { ApiKeyGuard } from "../common/api-key.guard";
 
 @Controller("api")
+@UseGuards(ApiKeyGuard)
 export class ClaudeUsageController {
   constructor(private readonly service: ClaudeUsageService) {}
 

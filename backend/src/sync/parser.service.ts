@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -15,6 +15,7 @@ export interface ParsedSession {
   userMessageCount: number;
   assistantMessageCount: number;
   toolCounts: Record<string, number>;
+  languageCounts: Record<string, number>;
   linesAdded: number;
   linesRemoved: number;
   filesModified: number;
@@ -43,6 +44,8 @@ interface JsonEntry {
 
 @Injectable()
 export class ParserService {
+  private readonly logger = new Logger(ParserService.name);
+
   private extractLanguages(toolName: string, input: Record<string, unknown>): Record<string, number> {
     const langs: Record<string, number> = {};
     if (toolName === "Write" || toolName === "Edit") {
@@ -57,7 +60,8 @@ export class ParserService {
     let content: string;
     try {
       content = fs.readFileSync(filePath, "utf-8");
-    } catch {
+    } catch (err) {
+      this.logger.warn(`Failed to read file ${filePath}: ${(err as Error).message}`);
       return null;
     }
 
@@ -137,7 +141,7 @@ export class ParserService {
           }
         }
       } catch {
-        // Skip corrupt lines
+        this.logger.warn(`Skipping corrupt line in ${filePath}`);
       }
     }
 
@@ -156,6 +160,7 @@ export class ParserService {
       userMessageCount,
       assistantMessageCount,
       toolCounts,
+      languageCounts,
       linesAdded: 0,
       linesRemoved: 0,
       filesModified: 0,
