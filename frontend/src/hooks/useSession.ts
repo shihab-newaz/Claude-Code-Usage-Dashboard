@@ -25,7 +25,8 @@ interface SessionDetail {
 }
 
 async function fetchSession(id: string): Promise<SessionDetail> {
-  const res = await fetch(`/api/sessions/${id}`);
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const res = await fetch(`${baseUrl}/api/sessions/${id}`);
   if (!res.ok) throw new Error("Failed to fetch session");
   return res.json();
 }

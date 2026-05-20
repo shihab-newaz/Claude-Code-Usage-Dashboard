@@ -2,8 +2,8 @@
 
 ## Project Overview
 
-Personal Claude Code usage analytics dashboard. Reads transcript data from
-`~/.claude/` and displays aggregated metrics (tokens, cost, tool usage).
+Personal Claude Code usage analytics dashboard. Displays aggregated metrics
+(tokens, cost, tool usage) by fetching data from the backend API.
 
 ## Tech Stack
 
@@ -15,14 +15,12 @@ Personal Claude Code usage analytics dashboard. Reads transcript data from
 
 ## Data Source
 
-Read-only access to Claude Code session logs at:
-- `~/.claude/projects/*.jsonl` — per-project session JSONL files (primary data source)
-- `~/.claude/usage-data/session-meta/*.json` — pre-aggregated per-session stats (alternative source)
+All data comes from the backend API (NestJS). Configure the backend URL via:
+- `NEXT_PUBLIC_API_URL` — base URL of the backend (e.g. `http://localhost:3000`)
 
 ## Key Conventions
 
-- API routes go in `src/app/api/`
+- No frontend API routes — the backend is the source of truth
+- TanStack Query hooks in `src/hooks/` call the backend directly
 - Dashboard pages in `src/app/(dashboard)/`
-- Custom hooks in `src/hooks/`
 - Recharts components in `src/components/charts/`
-- All API responses use NextResponse.json()

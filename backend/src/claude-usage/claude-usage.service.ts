@@ -222,6 +222,30 @@ export class ClaudeUsageService {
     });
   }
 
+  getSessionById(id: string) {
+    const session = this.dbInstance.prepare(`
+      SELECT * FROM sessions WHERE id = ?
+    `).get(id) as Record<string, unknown> | undefined;
+
+    if (!session) return null;
+
+    const tools = this.dbInstance.prepare(`
+      SELECT tool_name AS tool, call_count AS count
+      FROM session_tools
+      WHERE session_id = ?
+      ORDER BY count DESC
+    `).all(id) as Array<{ tool: string; count: number }>;
+
+    const languages = this.dbInstance.prepare(`
+      SELECT language, file_count AS count
+      FROM session_languages
+      WHERE session_id = ?
+      ORDER BY count DESC
+    `).all(id) as Array<{ language: string; count: number }>;
+
+    return { ...session, topTools: tools, topLanguages: languages };
+  }
+
   getFullResponse(filter: DateRangeFilter = {}) {
     return {
       summary: this.getUsageSummary(filter),
