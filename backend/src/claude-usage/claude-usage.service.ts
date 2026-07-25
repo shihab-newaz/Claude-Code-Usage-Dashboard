@@ -1,13 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { DbService } from "../db/db.service";
 import type Database from "better-sqlite3";
-
-function estimateCost(inputTokens: number, outputTokens: number): number {
-  // Anthropic Claude 3.5 Sonnet pricing approximation
-  const inputCostPerM = 3.0;
-  const outputCostPerM = 15.0;
-  return (inputTokens * inputCostPerM + outputTokens * outputCostPerM) / 1_000_000;
-}
+import { estimateCostForModel } from "../constants/model-pricing";
 
 export interface DateRangeFilter {
   dateFrom?: string;
@@ -53,13 +47,24 @@ export class ClaudeUsageService {
     const totalInputTokens = row.totalInputTokens as number;
     const totalOutputTokens = row.totalOutputTokens as number;
 
+    const modelCostRows = this.dbInstance.prepare(`
+      SELECT model, SUM(input_tokens) AS inp, SUM(output_tokens) AS out
+      FROM session_models
+      WHERE session_id IN (SELECT id FROM sessions ${clause})
+      GROUP BY model
+    `).all(...params) as Array<{ model: string; inp: number; out: number }>;
+    const estimatedCostUSD = modelCostRows.reduce(
+      (sum, r) => sum + estimateCostForModel(r.model, r.inp, r.out),
+      0,
+    );
+
     return {
       totalSessions: row.totalSessions as number,
       totalInputTokens,
       totalOutputTokens,
       totalCacheReadTokens: row.totalCacheReadTokens as number,
       totalCacheCreationTokens: row.totalCacheCreationTokens as number,
-      estimatedCostUSD: estimateCost(totalInputTokens, totalOutputTokens),
+      estimatedCostUSD,
       totalLinesAdded: row.totalLinesAdded as number,
       totalLinesRemoved: row.totalLinesRemoved as number,
       totalFilesModified: row.totalFilesModified as number,
@@ -140,7 +145,7 @@ export class ClaudeUsageService {
       inputTokens: row.inputTokens,
       outputTokens: row.outputTokens,
       messageCount: row.messageCount,
-      estimatedCostUSD: estimateCost(row.inputTokens, row.outputTokens),
+      estimatedCostUSD: estimateCostForModel(row.model, row.inputTokens, row.outputTokens),
     }));
   }
 
@@ -199,6 +204,16 @@ export class ClaudeUsageService {
       languagesBySession.set(row.session_id, languages);
     }
 
+    const costBySession = new Map<string, number>();
+    const modelCostRows = this.dbInstance.prepare(`
+      SELECT session_id, model, input_tokens AS inp, output_tokens AS out
+      FROM session_models
+      WHERE session_id IN (${placeholders})
+    `).all(...sessionIds) as Array<{ session_id: string; model: string; inp: number; out: number }>;
+    for (const r of modelCostRows) {
+      costBySession.set(r.session_id, (costBySession.get(r.session_id) ?? 0) + estimateCostForModel(r.model, r.inp, r.out));
+    }
+
     return rows.map((row) => {
       const sessionId = row.id as string;
       const inputTokens = row.input_tokens as number;
@@ -211,7 +226,7 @@ export class ClaudeUsageService {
         durationMinutes: row.duration_minutes as number,
         inputTokens,
         outputTokens,
-        estimatedCostUSD: estimateCost(inputTokens, outputTokens),
+        estimatedCostUSD: costBySession.get(sessionId) ?? estimateCostForModel("", inputTokens, outputTokens),
         linesAdded: row.lines_added as number,
         linesRemoved: row.lines_removed as number,
         filesModified: row.files_modified as number,

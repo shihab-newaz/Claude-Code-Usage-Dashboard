@@ -1,0 +1,16 @@
+{
+  "name": "claude-usage-agent",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "eve dev",
+    "build": "eve build",
+    "start": "eve start"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.3",
+    "ai": "latest",
+    "eve": "latest",
+    "zod": "latest"
+  }
+}

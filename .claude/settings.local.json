@@ -1,12 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Skill(update-config)",
-      "mcp__ide__getDiagnostics",
-      "Bash(npm run *)"
+      "Bash(npm install *)"
     ]
   },
   "enabledPlugins": {
-    "ecc@ecc": true
+    "ecc@ecc": false
   }
 }

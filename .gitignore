@@ -1,0 +1,52 @@
+# Monorepo-wide ignore rules (applies to backend/, frontend/, agent/, and any future package)
+
+# dependencies
+node_modules/
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# build output
+dist/
+build/
+out/
+.next/
+
+# logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# test / coverage artifacts
+coverage/
+.nyc_output/
+
+# tooling caches
+.turbo/
+.cache/
+.eslintcache
+
+# TypeScript
+*.tsbuildinfo
+
+# temporary files
+tmp/
+temp/
+
+# IDE / OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# vercel
+.vercel
+
+# eve agent runtime
+.eve/
+.workflow-data/

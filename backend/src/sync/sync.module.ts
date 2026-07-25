@@ -8,5 +8,6 @@ import { DbModule } from "../db/db.module";
   imports: [DbModule],
   controllers: [SyncController],
   providers: [SyncService, ParserService],
+  exports: [SyncService],
 })
 export class SyncModule {}
